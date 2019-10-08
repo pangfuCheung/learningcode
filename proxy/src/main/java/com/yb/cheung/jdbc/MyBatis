@@ -1,0 +1,42 @@
+
+五 Executor（执行器）：
+   1.【基本介绍】
+        每一个SqlSession对象都会被分配一个【执行器对象】
+        【执行器对象】主要负责【Connection获取】和【statement对象管理方案】
+
+   2.【statement对象管理方案】
+        1）简单管理方案：一个statement接口对象只执行一次。执行完毕就会销毁statement对象
+
+        2）可重用方案：使用一个Map集合，关键字就是一条Sql语句。对应内容Statement接口对象
+           等到SqlSession再次接收到相同命令时，就从map集合找到对应statement接口使用
+           //map.put("select * from order",statement1);
+
+        3）批处理管理方案：将多个statement包含的Sql语句，交给一个statement对象输送到数据库，形成批处理操作
+           //比如一个需要执行三条语句，则把这三个statement的sql语句放到第四个statement中发送到数据库中执行
+
+   3.执行器继承关系
+
+        1）Executor 接口有两个实现类：
+            BaseExecutor
+            CachingExecutor
+
+        2）BaseExecutor：抽象类；减轻Executor接口实现的难度；此处用了适配器设计模式
+
+        3）CachingExecutor：提高查询效率，在查询时首先到缓存中寻找对应的数据。
+                            如果有直接返回，MyBatis框架中默认使用缓存执行器
+                            如果缓存执行器没有得到对应结果时，才会交给其它执行器（BaseExecutor的字类）
+                            注：实际Mysql数据库中也有缓存机制
+                                mysql的查询缓存机制：当前查询语句，它所对应的表，针对这个缓存表的所有查询
+                                每一次update都会清楚缓存
+
+
+六 statementHandler接口
+    1.介绍：
+        主要负责【statement或PrepareStatement或CallableStatement】创建工作
+                            执行的是预编译操作  执行是存储过程操作
+        同时负责【PrepareStatement或CallableStatement】运输的sql语句中占位符的赋值任务
+        此外负责数据库操作对象的运行行为【update】【query】
+
+    2.关注四个方法
+
+        prepra
